@@ -16,7 +16,9 @@ var stageSymbolMap = map[OperatorSymbol]evaluationOperator{
 	REQ:            regexStage,
 	NREQ:           notRegexStage,
 	AND:            andStage,
+	LITERAL_AND:    andStage,
 	OR:             orStage,
+	LITERAL_OR:     orStage,
 	IN:             inStage,
 	BITWISE_OR:     bitwiseOrStage,
 	BITWISE_AND:    bitwiseAndStage,
@@ -120,13 +122,13 @@ func init() {
 		next:            planBitwise,
 	})
 	planLogicalAnd = makePrecedentFromPlanner(&precedencePlanner{
-		validSymbols:    map[string]OperatorSymbol{"&&": AND},
+		validSymbols:    map[string]OperatorSymbol{"&&": AND, "and": LITERAL_AND},
 		validKinds:      []TokenKind{LOGICALOP},
 		typeErrorFormat: logicalErrorFormat,
 		next:            planComparator,
 	})
 	planLogicalOr = makePrecedentFromPlanner(&precedencePlanner{
-		validSymbols:    map[string]OperatorSymbol{"||": OR},
+		validSymbols:    map[string]OperatorSymbol{"||": OR, "or": LITERAL_OR},
 		validKinds:      []TokenKind{LOGICALOP},
 		typeErrorFormat: logicalErrorFormat,
 		next:            planLogicalAnd,
@@ -477,9 +479,9 @@ func findTypeChecks(symbol OperatorSymbol) typeChecks {
 			left:  isString,
 			right: isRegexOrString,
 		}
-	case AND:
+	case AND, LITERAL_AND:
 		fallthrough
-	case OR:
+	case OR, LITERAL_OR:
 		return typeChecks{
 			left:  isBool,
 			right: isBool,
