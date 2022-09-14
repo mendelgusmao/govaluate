@@ -78,6 +78,12 @@ func TestParsingFailure(test *testing.T) {
 		},
 		ParsingFailureTest{
 
+			Name:     "Premature end to expression, via logical operator",
+			Input:    "10 > 5 and",
+			Expected: UNEXPECTED_END,
+		},
+		ParsingFailureTest{
+
 			Name:     "Premature end to expression, via ternary operator",
 			Input:    "true ?",
 			Expected: UNEXPECTED_END,

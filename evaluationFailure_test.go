@@ -201,8 +201,20 @@ func TestLogicalOperatorTyping(test *testing.T) {
 		},
 		EvaluationFailureTest{
 
+			Name:     "AND number to number (literal AND)",
+			Input:    "number and number",
+			Expected: INVALID_LOGICALOP_TYPES,
+		},
+		EvaluationFailureTest{
+
 			Name:     "OR number to number",
 			Input:    "number || number",
+			Expected: INVALID_LOGICALOP_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "OR number to number (literal OR)",
+			Input:    "number or number",
 			Expected: INVALID_LOGICALOP_TYPES,
 		},
 		EvaluationFailureTest{
@@ -213,8 +225,20 @@ func TestLogicalOperatorTyping(test *testing.T) {
 		},
 		EvaluationFailureTest{
 
+			Name:     "AND string to string (literal AND)",
+			Input:    "string and string",
+			Expected: INVALID_LOGICALOP_TYPES,
+		},
+		EvaluationFailureTest{
+
 			Name:     "OR string to string",
 			Input:    "string || string",
+			Expected: INVALID_LOGICALOP_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "OR string to string (literal OR)",
+			Input:    "string or string",
 			Expected: INVALID_LOGICALOP_TYPES,
 		},
 		EvaluationFailureTest{
@@ -225,8 +249,20 @@ func TestLogicalOperatorTyping(test *testing.T) {
 		},
 		EvaluationFailureTest{
 
+			Name:     "AND number to string (literal AND)",
+			Input:    "number and string",
+			Expected: INVALID_LOGICALOP_TYPES,
+		},
+		EvaluationFailureTest{
+
 			Name:     "OR number to string",
 			Input:    "number || string",
+			Expected: INVALID_LOGICALOP_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "OR number to string (literal OR)",
+			Input:    "number or string",
 			Expected: INVALID_LOGICALOP_TYPES,
 		},
 		EvaluationFailureTest{
@@ -237,8 +273,20 @@ func TestLogicalOperatorTyping(test *testing.T) {
 		},
 		EvaluationFailureTest{
 
+			Name:     "AND bool to string (literal AND)",
+			Input:    "bool and string",
+			Expected: INVALID_LOGICALOP_TYPES,
+		},
+		EvaluationFailureTest{
+
 			Name:     "OR string to bool",
 			Input:    "string || bool",
+			Expected: INVALID_LOGICALOP_TYPES,
+		},
+		EvaluationFailureTest{
+
+			Name:     "OR string to bool (literal OR)",
+			Input:    "string or bool",
 			Expected: INVALID_LOGICALOP_TYPES,
 		},
 	}

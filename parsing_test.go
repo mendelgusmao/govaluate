@@ -480,6 +480,25 @@ func TestLogicalOperatorParsing(test *testing.T) {
 		},
 		TokenParsingTest{
 
+			Name:  "Boolean AND (literal)",
+			Input: "true and false",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  BOOLEAN,
+					Value: true,
+				},
+				ExpressionToken{
+					Kind:  LOGICALOP,
+					Value: "and",
+				},
+				ExpressionToken{
+					Kind:  BOOLEAN,
+					Value: false,
+				},
+			},
+		},
+		TokenParsingTest{
+
 			Name:  "Boolean OR",
 			Input: "true || false",
 			Expected: []ExpressionToken{
@@ -490,6 +509,25 @@ func TestLogicalOperatorParsing(test *testing.T) {
 				ExpressionToken{
 					Kind:  LOGICALOP,
 					Value: "||",
+				},
+				ExpressionToken{
+					Kind:  BOOLEAN,
+					Value: false,
+				},
+			},
+		},
+		TokenParsingTest{
+
+			Name:  "Boolean OR (literal)",
+			Input: "true or false",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  BOOLEAN,
+					Value: true,
+				},
+				ExpressionToken{
+					Kind:  LOGICALOP,
+					Value: "or",
 				},
 				ExpressionToken{
 					Kind:  BOOLEAN,
@@ -517,6 +555,87 @@ func TestLogicalOperatorParsing(test *testing.T) {
 				ExpressionToken{
 					Kind:  LOGICALOP,
 					Value: "&&",
+				},
+				ExpressionToken{
+					Kind:  BOOLEAN,
+					Value: true,
+				},
+			},
+		},
+		TokenParsingTest{
+
+			Name:  "Multiple logical operators (literal or)",
+			Input: "true or false && true",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  BOOLEAN,
+					Value: true,
+				},
+				ExpressionToken{
+					Kind:  LOGICALOP,
+					Value: "or",
+				},
+				ExpressionToken{
+					Kind:  BOOLEAN,
+					Value: false,
+				},
+				ExpressionToken{
+					Kind:  LOGICALOP,
+					Value: "&&",
+				},
+				ExpressionToken{
+					Kind:  BOOLEAN,
+					Value: true,
+				},
+			},
+		},
+		TokenParsingTest{
+
+			Name:  "Multiple logical operators (literal and)",
+			Input: "true || false and true",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  BOOLEAN,
+					Value: true,
+				},
+				ExpressionToken{
+					Kind:  LOGICALOP,
+					Value: "||",
+				},
+				ExpressionToken{
+					Kind:  BOOLEAN,
+					Value: false,
+				},
+				ExpressionToken{
+					Kind:  LOGICALOP,
+					Value: "and",
+				},
+				ExpressionToken{
+					Kind:  BOOLEAN,
+					Value: true,
+				},
+			},
+		},
+		TokenParsingTest{
+
+			Name:  "Multiple logical operators (literal and and or)",
+			Input: "true or false and true",
+			Expected: []ExpressionToken{
+				ExpressionToken{
+					Kind:  BOOLEAN,
+					Value: true,
+				},
+				ExpressionToken{
+					Kind:  LOGICALOP,
+					Value: "or",
+				},
+				ExpressionToken{
+					Kind:  BOOLEAN,
+					Value: false,
+				},
+				ExpressionToken{
+					Kind:  LOGICALOP,
+					Value: "and",
 				},
 				ExpressionToken{
 					Kind:  BOOLEAN,
@@ -1455,23 +1574,32 @@ func TestTernaryParsing(test *testing.T) {
 func TestOriginalString(test *testing.T) {
 
 	// include all the token types, to be sure there's no shenaniganery going on.
-	expressionString := "2 > 1 &&" +
+	expressionStrings := []string{
+		"2 > 1 &&" +
 		"'something' != 'nothing' || " +
 		"'2014-01-20' < 'Wed Jul  8 23:07:35 MDT 2015' && " +
 		"[escapedVariable name with spaces] <= unescaped\\-variableName &&" +
-		"modifierTest + 1000 / 2 > (80 * 100 % 2) && true ? true : false"
-
-	expression, err := NewEvaluableExpression(expressionString)
-	if err != nil {
-
-		test.Logf("failed to parse original string test: %v", err)
-		test.Fail()
-		return
+		"modifierTest + 1000 / 2 > (80 * 100 % 2) && true ? true : false",
+		"2 > 1 and" +
+		"'something' != 'nothing' or " +
+		"'2014-01-20' < 'Wed Jul  8 23:07:35 MDT 2015' and " +
+		"[escapedVariable name with spaces] <= unescaped\\-variableName and" +
+		"modifierTest + 1000 / 2 > (80 * 100 % 2) && true ? true : false",
 	}
 
-	if expression.String() != expressionString {
-		test.Logf("String() did not give the same expression as given to parse")
-		test.Fail()
+	for _, expressionString := range expressionStrings {
+		expression, err := NewEvaluableExpression(expressionString)
+		if err != nil {
+
+			test.Logf("failed to parse original string test: %v", err)
+			test.Fail()
+			return
+		}
+
+		if expression.String() != expressionString {
+			test.Logf("String() did not give the same expression as given to parse")
+			test.Fail()
+		}
 	}
 }
 
@@ -1481,38 +1609,47 @@ func TestOriginalString(test *testing.T) {
 func TestOriginalVars(test *testing.T) {
 
 	// include all the token types, to be sure there's no shenaniganery going on.
-	expressionString := "2 > 1 &&" +
+	expressionStrings := []string{
+		"2 > 1 &&" +
 		"'something' != 'nothing' || " +
 		"'2014-01-20' < 'Wed Jul  8 23:07:35 MDT 2015' && " +
 		"[escapedVariable name with spaces] <= unescaped\\-variableName &&" +
-		"modifierTest + 1000 / 2 > (80 * 100 % 2) && true ? true : false"
-
-	expectedVars := [3]string{"escapedVariable name with spaces",
-		"modifierTest",
-		"unescaped-variableName"}
-
-	expression, err := NewEvaluableExpression(expressionString)
-	if err != nil {
-
-		test.Logf("failed to parse original var test: %v", err)
-		test.Fail()
-		return
+		"modifierTest + 1000 / 2 > (80 * 100 % 2) && true ? true : false",
+		"2 > 1 and" +
+		"'something' != 'nothing' or " +
+		"'2014-01-20' < 'Wed Jul  8 23:07:35 MDT 2015' and " +
+		"[escapedVariable name with spaces] <= unescaped\\-variableName and" +
+		"modifierTest + 1000 / 2 > (80 * 100 % 2) && true ? true : false",
 	}
 
-	if len(expression.Vars()) == len(expectedVars) {
-		variableMap := make(map[string]string)
-		for _, v := range expression.Vars() {
-			variableMap[v] = v
+	for _, expressionString := range expressionStrings {
+		expectedVars := [3]string{"escapedVariable name with spaces",
+			"modifierTest",
+			"unescaped-variableName"}
+
+		expression, err := NewEvaluableExpression(expressionString)
+		if err != nil {
+
+			test.Logf("failed to parse original var test: %v", err)
+			test.Fail()
+			return
 		}
-		for _, v := range expectedVars {
-			if _, ok := variableMap[v]; !ok {
-				test.Logf("Vars() did not correctly identify all variables contained within the expression")
-				test.Fail()
+
+		if len(expression.Vars()) == len(expectedVars) {
+			variableMap := make(map[string]string)
+			for _, v := range expression.Vars() {
+				variableMap[v] = v
 			}
+			for _, v := range expectedVars {
+				if _, ok := variableMap[v]; !ok {
+					test.Logf("Vars() did not correctly identify all variables contained within the expression")
+					test.Fail()
+				}
+			}
+		} else {
+			test.Logf("Vars() did not correctly identify all variables contained within the expression")
+			test.Fail()
 		}
-	} else {
-		test.Logf("Vars() did not correctly identify all variables contained within the expression")
-		test.Fail()
 	}
 }
 

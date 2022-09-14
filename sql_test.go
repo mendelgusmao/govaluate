@@ -116,8 +116,20 @@ func TestSQLSerialization(test *testing.T) {
 		},
 		QueryTest{
 
+			Name:     "Single literal AND",
+			Input:    "true and true",
+			Expected: "1 AND 1",
+		},
+		QueryTest{
+
 			Name:     "Single OR",
 			Input:    "true || true",
+			Expected: "1 OR 1",
+		},
+		QueryTest{
+
+			Name:     "Single literal OR",
+			Input:    "true or true",
 			Expected: "1 OR 1",
 		},
 		QueryTest{

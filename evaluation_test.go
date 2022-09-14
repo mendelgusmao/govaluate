@@ -150,8 +150,20 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:     "Logical OR operation of two clauses (literal OR)",
+			Input:    "(1 == 1) or (true == true)",
+			Expected: true,
+		},
+		EvaluationTest{
+
 			Name:     "Logical AND operation of two clauses",
 			Input:    "(1 == 1) && (true == true)",
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:     "Logical AND operation of two clauses (literal AND)",
+			Input:    "(1 == 1) and (true == true)",
 			Expected: true,
 		},
 		EvaluationTest{
@@ -168,8 +180,20 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:     "Compound boolean (literal AND)",
+			Input:    "5 < 10 and 1 < 5",
+			Expected: true,
+		},
+		EvaluationTest{
+
 			Name:     "Evaluated true && false operation (for issue #8)",
 			Input:    "1 > 10 && 11 > 10",
+			Expected: false,
+		},
+		EvaluationTest{
+
+			Name:     "Evaluated true && false operation (for issue #8) [literal AND]",
+			Input:    "1 > 10 and 11 > 10",
 			Expected: false,
 		},
 		EvaluationTest{
@@ -180,8 +204,20 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:     "Evaluated true && false operation (for issue #8) [literal AND]",
+			Input:    "true == true and false == true",
+			Expected: false,
+		},
+		EvaluationTest{
+
 			Name:     "Parenthesis boolean",
 			Input:    "10 < 50 && (1 != 2 && 1 > 0)",
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:     "Parenthesis boolean (literal AND)",
+			Input:    "10 < 50 and (1 != 2 and 1 > 0)",
 			Expected: true,
 		},
 		EvaluationTest{
@@ -513,14 +549,32 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:     "Logical operator reordering (#30) [literal AND and OR]",
+			Input:    "(true and true) or (true and false)",
+			Expected: true,
+		},
+		EvaluationTest{
+
 			Name:     "Logical operator reordering without parens (#30)",
 			Input:    "true && true || true && false",
 			Expected: true,
 		},
 		EvaluationTest{
 
+			Name:     "Logical operator reordering without parens (#30) [literal AND and OR]",
+			Input:    "true and true or true and false",
+			Expected: true,
+		},
+		EvaluationTest{
+
 			Name:     "Logical operator reordering with multiple OR (#30)",
 			Input:    "false || true && true || false",
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:     "Logical operator reordering with multiple OR (#30) [literal AND and OR]",
+			Input:    "false or true and true or false",
 			Expected: true,
 		},
 		EvaluationTest{
@@ -537,14 +591,32 @@ func TestNoParameterEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:     "Three-part non-paren logical op reordering (#44) [literal AND and OR]",
+			Input:    "false and true or true",
+			Expected: true,
+		},
+		EvaluationTest{
+
 			Name:     "Three-part non-paren logical op reordering (#44), second one",
 			Input:    "true || false && true",
 			Expected: true,
 		},
 		EvaluationTest{
 
+			Name:     "Three-part non-paren logical op reordering (#44), second one [literal AND and OR]",
+			Input:    "true or false and true",
+			Expected: true,
+		},
+		EvaluationTest{
+
 			Name:     "Logical operator reordering without parens (#45)",
 			Input:    "true && true || false && false",
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:     "Logical operator reordering without parens (#45) [literal AND and OR]",
+			Input:    "true and true or false and false",
 			Expected: true,
 		},
 		EvaluationTest{
@@ -710,7 +782,7 @@ func TestNoParameterEvaluation(test *testing.T) {
 			Expected: true,
 		},
 		EvaluationTest{
-			
+
 			Name:  "Ternary/Java EL ambiguity",
 			Input: "false ? foo:length()",
 			Functions: map[string]ExpressionFunction{
@@ -862,8 +934,40 @@ func TestParameterizedEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:  "Two-boolean logical operation (for issue #8) [literal OR]",
+			Input: "(foo == true) or (bar == true)",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "foo",
+					Value: true,
+				},
+				EvaluationParameter{
+					Name:  "bar",
+					Value: false,
+				},
+			},
+			Expected: true,
+		},
+		EvaluationTest{
+
 			Name:  "Two-variable integer logical operation (for issue #8)",
 			Input: "foo > 10 && bar > 10",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "foo",
+					Value: 1,
+				},
+				EvaluationParameter{
+					Name:  "bar",
+					Value: 11,
+				},
+			},
+			Expected: false,
+		},
+		EvaluationTest{
+
+			Name:  "Two-variable integer logical operation (for issue #8) [literal AND]",
+			Input: "foo > 10 and bar > 10",
 			Parameters: []EvaluationParameter{
 				EvaluationParameter{
 					Name:  "foo",
@@ -1018,8 +1122,40 @@ func TestParameterizedEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:  "True comparator with multiple parameters [literal AND]",
+			Input: "theft and period == 24 ? 60",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "theft",
+					Value: true,
+				},
+				EvaluationParameter{
+					Name:  "period",
+					Value: 24,
+				},
+			},
+			Expected: 60.0,
+		},
+		EvaluationTest{
+
 			Name:  "False comparator with multiple parameters",
 			Input: "theft && period == 24 ? 60",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "theft",
+					Value: false,
+				},
+				EvaluationParameter{
+					Name:  "period",
+					Value: 24,
+				},
+			},
+			Expected: nil,
+		},
+		EvaluationTest{
+
+			Name:  "False comparator with multiple parameters (literal AND)",
+			Input: "theft and period == 24 ? 60",
 			Parameters: []EvaluationParameter{
 				EvaluationParameter{
 					Name:  "theft",
@@ -1170,8 +1306,32 @@ func TestParameterizedEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:  "Multiple comparator/logical operators (#30) [literal AND and OR]",
+			Input: "(foo >= 2887057408 and foo <= 2887122943) or (foo >= 168100864 and foo <= 168118271)",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "foo",
+					Value: 2887057409,
+				},
+			},
+			Expected: true,
+		},
+		EvaluationTest{
+
 			Name:  "Multiple comparator/logical operators, opposite order (#30)",
 			Input: "(foo >= 168100864 && foo <= 168118271) || (foo >= 2887057408 && foo <= 2887122943)",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "foo",
+					Value: 2887057409,
+				},
+			},
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:  "Multiple comparator/logical operators, opposite order (#30) [literal AND and OR]",
+			Input: "(foo >= 168100864 and foo <= 168118271) or (foo >= 2887057408 and foo <= 2887122943)",
 			Parameters: []EvaluationParameter{
 				EvaluationParameter{
 					Name:  "foo",
@@ -1194,8 +1354,32 @@ func TestParameterizedEvaluation(test *testing.T) {
 		},
 		EvaluationTest{
 
+			Name:  "Multiple comparator/logical operators, small value (#30) [literal AND and OR]",
+			Input: "(foo >= 2887057408 and foo <= 2887122943) or (foo >= 168100864 and foo <= 168118271)",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "foo",
+					Value: 168100865,
+				},
+			},
+			Expected: true,
+		},
+		EvaluationTest{
+
 			Name:  "Multiple comparator/logical operators, small value, opposite order (#30)",
 			Input: "(foo >= 168100864 && foo <= 168118271) || (foo >= 2887057408 && foo <= 2887122943)",
+			Parameters: []EvaluationParameter{
+				EvaluationParameter{
+					Name:  "foo",
+					Value: 168100865,
+				},
+			},
+			Expected: true,
+		},
+		EvaluationTest{
+
+			Name:  "Multiple comparator/logical operators, small value, opposite order (#30) [literal AND and OR]",
+			Input: "(foo >= 168100864 and foo <= 168118271) or (foo >= 2887057408 and foo <= 2887122943)",
 			Parameters: []EvaluationParameter{
 				EvaluationParameter{
 					Name:  "foo",
@@ -1270,6 +1454,17 @@ func TestParameterizedEvaluation(test *testing.T) {
 
 			Name:  "Short-circuit AND",
 			Input: "false && fail()",
+			Functions: map[string]ExpressionFunction{
+				"fail": func(arguments ...interface{}) (interface{}, error) {
+					return nil, errors.New("Did not short-circuit")
+				},
+			},
+			Expected: false,
+		},
+		EvaluationTest{
+
+			Name:  "Short-circuit AND (literal AND)",
+			Input: "false and fail()",
 			Functions: map[string]ExpressionFunction{
 				"fail": func(arguments ...interface{}) (interface{}, error) {
 					return nil, errors.New("Did not short-circuit")
@@ -1409,6 +1604,13 @@ func TestParameterizedEvaluation(test *testing.T) {
 
 			Name:       "Parameter call with && operator",
 			Input:      "true && foo.BoolFalse",
+			Parameters: []EvaluationParameter{fooParameter},
+			Expected:   false,
+		},
+		EvaluationTest{
+
+			Name:       "Parameter call with && operator (literal AND)",
+			Input:      "true and foo.BoolFalse",
 			Parameters: []EvaluationParameter{fooParameter},
 			Expected:   false,
 		},
