@@ -21,7 +21,9 @@ const (
 	IN
 
 	AND
+	LITERAL_AND
 	OR
+	LITERAL_OR
 
 	PLUS
 	MINUS
@@ -92,9 +94,9 @@ func findOperatorPrecedenceForSymbol(symbol OperatorSymbol) operatorPrecedence {
 		fallthrough
 	case IN:
 		return comparatorPrecedence
-	case AND:
+	case AND, LITERAL_AND:
 		return logicalAndPrecedence
-	case OR:
+	case OR, LITERAL_OR:
 		return logicalOrPrecedence
 	case BITWISE_AND:
 		fallthrough
@@ -161,6 +163,8 @@ var comparatorSymbols = map[string]OperatorSymbol{
 var logicalSymbols = map[string]OperatorSymbol{
 	"&&": AND,
 	"||": OR,
+	"and": LITERAL_AND,
+	"or": LITERAL_OR,
 }
 
 var bitwiseSymbols = map[string]OperatorSymbol{
@@ -268,6 +272,10 @@ func (this OperatorSymbol) String() string {
 		return "&&"
 	case OR:
 		return "||"
+	case LITERAL_AND:
+		return "and"
+	case LITERAL_OR:
+		return "or"
 	case IN:
 		return "in"
 	case BITWISE_AND:
