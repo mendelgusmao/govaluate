@@ -60,9 +60,9 @@ func (this EvaluableExpression) findNextSQLString(stream *tokenStream, transacti
 	case LOGICALOP:
 		switch logicalSymbols[token.Value.(string)] {
 
-		case AND:
+		case AND, LITERAL_AND:
 			ret = "AND"
-		case OR:
+		case OR, LITERAL_OR:
 			ret = "OR"
 		}
 
